@@ -1,20 +1,58 @@
+from typing import List, Dict
 import cv2
 import numpy as np
-from pythonRLSA import rlsa
+import os
 import math
+import glob
 import pytesseract
 from PIL import Image
+import sys
+import requests
+import re
+from pythonRLSA import rlsa
 
+minLineLength = 100
+maxLineGap = 50
+
+def lines_extraction(gray: List[int]) -> List[int]:
+    """
+    this function extracts the lines from the binary image. Cleaning process.
+    """
+    edges = cv2.Canny(gray, 75, 150)
+    lines = cv2.HoughLinesP(edges, 1, np.pi/180, 100, minLineLength, maxLineGap)
+    return lines
 
 image = cv2.imread('images_work_directory/image.png') #reading the image
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) # converting to grayscale image
 (thresh, im_bw) = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU) # converting to binary image
-
+im_bw = ~im_bw
 
 mask = np.ones(image.shape[:2], dtype="uint8") * 255 # create blank image of same dimension of the original image
-(_, contours, _) = cv2.findContours(~im_bw,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE) 
-heights = [cv2.boundingRect(contour)[3] for contour in contours] # collecting heights of each contour
-avgheight = sum(heights)/len(heights) # average height
+lines = lines_extraction(gray) # line extraction
+
+try:
+    for line in lines:
+        """
+        drawing extracted lines on mask
+        """
+        x1, y1, x2, y2 = line[0]
+        cv2.line(mask, (x1, y1), (x2, y2), (0, 255, 0), 3)
+except TypeError:
+    pass
+(_, contours, _) = cv2.findContours(im_bw,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+
+areas = [cv2.contourArea(c) for c in contours]
+avgArea = sum(areas)/len(areas)
+for c in contours:
+    if cv2.contourArea(c)>60*avgArea:
+        cv2.drawContours(mask, [c], -1, 0, -1)
+
+im_bw = cv2.bitwise_and(im_bw, im_bw, mask=mask) # nullifying the mask over binary
+
+mask = np.ones(image.shape[:2], dtype="uint8") * 255 # create the blank image
+(_, contours, _) = cv2.findContours(im_bw,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+heights = [cv2.boundingRect(contour)[3] for contour in contours]
+avgheight = sum(heights)/len(heights)
 
 # finding the larger text
 for c in contours:
