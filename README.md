@@ -10,6 +10,6 @@ Read more about the algorithm in the below link
 
 # Usage
 
-For Usage read this ![extract-title-from-the-image-documents-in-python](https://medium.com/@vasista/extract-title-from-the-image-documents-in-python-application-of-rlsa-58f91237901f) here
+For Usage read this [extract-title-from-the-image-documents-in-python](https://medium.com/@vasista/extract-title-from-the-image-documents-in-python-application-of-rlsa-58f91237901f) here
 
 
