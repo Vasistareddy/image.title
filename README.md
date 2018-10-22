@@ -2,7 +2,9 @@
 
 This project is to separate out the title and content from the document image
 
-**Application of RLSA Algorithm**
+**It is the *Application* of RLSA Algorithm**
 
-[RLSA](https://github.com/Vasistareddy/pythonRLSA)
+Read more about the algorithm in the below link
+
+[RLSA Here](https://github.com/Vasistareddy/pythonRLSA)
 
